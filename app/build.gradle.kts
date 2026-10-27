@@ -51,7 +51,7 @@ android {
         vectorDrawables.useSupportLibrary = true
 
         ndk {
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+            abiFilters += listOf("arm64-v8a")
         }
 
         // LastFM API keys from GitHub Secrets
@@ -60,7 +60,7 @@ android {
 
         buildConfigField("String", "LASTFM_API_KEY", "\"$lastFmKey\"")
         buildConfigField("String", "LASTFM_SECRET", "\"$lastFmSecret\"")
-        buildConfigField("String", "ARCHITECTURE", "\"universal\"")
+        buildConfigField("String", "ARCHITECTURE", "\"arm64-v8a\"")
         buildConfigField("Long", "DISCORD_APP_ID", "1447278780795064401L")
     }
 

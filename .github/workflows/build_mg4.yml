@@ -1,0 +1,75 @@
+name: Build MG4
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - "README.md"
+      - "fastlane/**"
+      - "assets/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_mg4:
+    name: Build arm64 APK for MG4
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v6
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Set Up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # A stable key lets the APK be updated in place on the car without
+      # uninstalling. Add a base64 keystore as the DEBUG_KEYSTORE secret
+      # (alias androiddebugkey, password android); otherwise a throwaway key is
+      # generated and each build must be installed after an uninstall.
+      - name: Prepare signing keystore
+        env:
+          DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE }}
+        run: |
+          mkdir -p ~/.android
+          if [ -n "$DEBUG_KEYSTORE" ]; then
+            echo "$DEBUG_KEYSTORE" | base64 -d > ~/.android/debug.keystore
+          elif [ ! -f ~/.android/debug.keystore ]; then
+            keytool -genkeypair -v -keystore ~/.android/debug.keystore \
+              -storepass android -keypass android -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      # izzy flavor: no Google Cast, no upstream self-updater.
+      - name: Build APK
+        run: ./gradlew --console=plain assembleIzzyDebug --warning-mode summary
+        env:
+          METROLIST_APPLICATION_ID: com.metrolist.music.mg4
+          METROLIST_APP_NAME: Metrolist MG4
+          METROLIST_BUILD_COMMIT: ${{ github.sha }}
+
+      - name: Rename APK
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/izzy/debug/*.apk out/metrolist-mg4-arm64.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: metrolist-mg4-arm64
+          path: out/metrolist-mg4-arm64.apk
