@@ -1,0 +1,118 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
+Calculating task graph as no cached configuration is available for tasks: assembleIzzyDebug
+> Task :app:generateIzzyDebugAssets UP-TO-DATE
+> Task :app:protobufDummy UP-TO-DATE
+> Task :innertube:preBuild UP-TO-DATE
+> Task :innertube:preDebugBuild UP-TO-DATE
+> Task :app:cleanLegacyProtoSources UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preIzzyDebugBuild UP-TO-DATE
+> Task :app:mergeIzzyDebugNativeDebugMetadata NO-SOURCE
+> Task :app:extractIzzyDebugProto
+> Task :innertube:generateDebugResources FROM-CACHE
+> Task :app:extractDebugProto
+> Task :app:generateIzzyDebugBuildConfig FROM-CACHE
+> Task :app:extractIzzyProto
+> Task :innertube:processDebugNavigationResources FROM-CACHE
+> Task :innertube:javaPreCompileDebug FROM-CACHE
+> Task :app:extractProto
+> Task :innertube:packageDebugResources FROM-CACHE
+> Task :innertube:extractDebugSupportedLocales FROM-CACHE
+> Task :app:generateIzzyDebugResValues FROM-CACHE
+> Task :app:extractIzzyDebugSupportedLocales FROM-CACHE
+> Task :app:mapIzzyDebugSourceSetPaths
+> Task :app:generateIzzyDebugLocaleConfig FROM-CACHE
+> Task :app:javaPreCompileIzzyDebug FROM-CACHE
+> Task :innertube:generateDebugAssets UP-TO-DATE
+> Task :app:generateIzzyDebugResources FROM-CACHE
+> Task :innertube:mergeDebugAssets
+> Task :app:packageIzzyDebugResources FROM-CACHE
+> Task :app:generateIzzyDebugGlobalSynthetics FROM-CACHE
+> Task :innertube:parseDebugLocalResources FROM-CACHE
+> Task :innertube:generateDebugRFile FROM-CACHE
+> Task :app:processIzzyDebugNavigationResources FROM-CACHE
+> Task :app:parseIzzyDebugLocalResources FROM-CACHE
+> Task :app:mergeIzzyDebugAssets
+> Task :app:compressIzzyDebugAssets FROM-CACHE
+> Task :app:l8DexDesugarLibIzzyDebug FROM-CACHE
+> Task :innertube:compileDebugKotlin FROM-CACHE
+> Task :innertube:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:generateIzzyDebugRFile FROM-CACHE
+> Task :innertube:processDebugJavaRes
+> Task :innertube:bundleLibRuntimeToJarDebug
+> Task :innertube:bundleLibCompileToJarDebug
+> Task :innertube:createFullJarDebug
+> Task :app:checkIzzyDebugDuplicateClasses
+> Task :innertube:writeDebugAarMetadata
+> Task :innertube:bundleLibRuntimeToDirDebug
+> Task :app:checkIzzyDebugAarMetadata
+> Task :app:compileIzzyDebugNavigationResources FROM-CACHE
+> Task :app:mergeLibDexIzzyDebug FROM-CACHE
+> Task :app:createIzzyDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksIzzyDebug FROM-CACHE
+> Task :innertube:extractDeepLinksDebug FROM-CACHE
+> Task :innertube:processDebugManifest FROM-CACHE
+> Task :app:desugarIzzyDebugFileDependencies FROM-CACHE
+> Task :app:mergeIzzyDebugResources FROM-CACHE
+> Task :innertube:mapDebugSourceSetPaths
+> Task :innertube:compileDebugLibraryResources FROM-CACHE
+> Task :app:mergeIzzyDebugJniLibFolders
+> Task :innertube:mergeDebugJniLibFolders
+> Task :innertube:mergeDebugNativeLibs NO-SOURCE
+> Task :innertube:copyDebugJniLibsProjectOnly
+> Task :app:processIzzyDebugMainManifest FROM-CACHE
+> Task :app:processIzzyDebugManifest FROM-CACHE
+> Task :app:processIzzyDebugManifestForPackage FROM-CACHE
+> Task :app:extractIncludeIzzyDebugProto
+> Task :app:generateIzzyDebugProto FROM-CACHE
+> Task :app:mergeIzzyDebugNativeLibs
+> Task :app:processIzzyDebugResources FROM-CACHE
+> Task :app:validateSigningIzzyDebug
+> Task :app:stripIzzyDebugDebugSymbols
+> Task :app:writeIzzyDebugAppMetadata
+> Task :app:writeIzzyDebugSigningConfigVersions
+> Task :app:mergeExtDexIzzyDebug FROM-CACHE
+> Task :app:kspIzzyDebugKotlin
+> Task :app:compileIzzyDebugKotlin
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/api/DeepLService.kt:82:49 Unnecessary safe call on a non-null receiver of type 'ResponseBody'.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/eq/data/GitHubAutoEqSearch.kt:178:41 Unnecessary safe call on a non-null receiver of type 'ResponseBody'.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/eq/data/GitHubAutoEqSearch.kt:214:41 Unnecessary safe call on a non-null receiver of type 'ResponseBody'.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/player/Player.kt:679:21 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/player/Player.kt:1438:21 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/player/Queue.kt:586:29 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/AndroidAutoSettings.kt:351:29 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/AppearanceSettings.kt:452:17 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/AppearanceSettings.kt:515:17 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/AppearanceSettings.kt:751:25 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/AppearanceSettings.kt:1329:21 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/ContentSettings.kt:643:21 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/PlayerSettings.kt:331:33 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/PlayerSettings.kt:368:29 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/StorageSettings.kt:359:29 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/StorageSettings.kt:432:33 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/integrations/LastFMSettings.kt:449:21 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/integrations/LastFMSettings.kt:514:21 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/screens/settings/integrations/LastFMSettings.kt:579:21 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/ui/utils/ShowOffsetDialog.kt:204:13 'fun Slider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., valueRange: ClosedFloatingPointRange<Float> = ..., steps: Int = ..., onValueChangeFinished: (() -> Unit)? = ..., colors: SliderColors = ..., interactionSource: MutableInteractionSource = ...): Unit' is deprecated. Use the Slider overload that accepts SliderState, onValueChange, and onValueChangeFinished instead.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/utils/potoken/PoTokenWebView.kt:389:77 Unnecessary safe call on a non-null receiver of type 'ResponseBody'.
+w: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/app/src/main/kotlin/com/metrolist/music/viewmodels/BackupRestoreViewModel.kt:461:45 Unnecessary safe call on a non-null receiver of type 'ResponseBody'.
+
+> Task :app:processIzzyDebugJavaRes
+> Task :app:mergeIzzyDebugJavaResource
+> Task :app:compileIzzyDebugJavaWithJavac
+> Task :app:hiltCollectClassesIzzyDebug
+> Task :app:hiltAggregateDepsIzzyDebug FROM-CACHE
+> Task :app:hiltJavaCompileIzzyDebug
+> Task :app:transformIzzyDebugClassesWithAsm
+> Task :app:dexBuilderIzzyDebug
+> Task :app:mergeProjectDexIzzyDebug
+> Task :app:packageIzzyDebug
+> Task :app:assembleIzzyDebug
+> Task :app:createIzzyDebugApkListingFileRedirect
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_3-1793111362081.json
+
+[Incubating] Problems report is available at: file:///home/runner/work/Metrolist-MG4/Metrolist-MG4/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 2m 59s
+74 actionable tasks: 37 executed, 36 from cache, 1 up-to-date
+Configuration cache entry stored.
