@@ -10,6 +10,14 @@ if (localPropertiesFile.exists()) {
 val baseApplicationId = "com.metrolist.music"
 val applicationIdOverride = System.getenv("METROLIST_APPLICATION_ID")?.takeIf { it.isNotBlank() }
 val appNameOverride = System.getenv("METROLIST_APP_NAME")?.takeIf { it.isNotBlank() }
+// The head unit is arm64; the CI emulator preview needs x86_64 (METROLIST_ABIS=x86_64).
+val targetAbis =
+    System.getenv("METROLIST_ABIS")
+        ?.split(",")
+        ?.map { it.trim() }
+        ?.filter { it.isNotEmpty() }
+        ?.takeIf { it.isNotEmpty() }
+        ?: listOf("arm64-v8a")
 val buildCommit =
     System.getenv("METROLIST_BUILD_COMMIT")
         ?.trim()
@@ -51,7 +59,7 @@ android {
         vectorDrawables.useSupportLibrary = true
 
         ndk {
-            abiFilters += listOf("arm64-v8a")
+            abiFilters += targetAbis
         }
 
         // LastFM API keys from GitHub Secrets
@@ -60,7 +68,7 @@ android {
 
         buildConfigField("String", "LASTFM_API_KEY", "\"$lastFmKey\"")
         buildConfigField("String", "LASTFM_SECRET", "\"$lastFmSecret\"")
-        buildConfigField("String", "ARCHITECTURE", "\"arm64-v8a\"")
+        buildConfigField("String", "ARCHITECTURE", "\"${targetAbis.joinToString("+")}\"")
         buildConfigField("Long", "DISCORD_APP_ID", "1447278780795064401L")
     }
 
