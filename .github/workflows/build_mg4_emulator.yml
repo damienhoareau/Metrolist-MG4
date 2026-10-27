@@ -42,7 +42,10 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build x86_64 debug APK
-        run: ./gradlew --console=plain assembleIzzyDebug --warning-mode summary
+        run: |
+          mkdir -p preview-out
+          set -o pipefail
+          ./gradlew --console=plain assembleIzzyDebug --warning-mode summary 2>&1 | tee preview-out/build.log
         env:
           METROLIST_ABIS: x86_64
           METROLIST_APPLICATION_ID: com.metrolist.music.mg4
