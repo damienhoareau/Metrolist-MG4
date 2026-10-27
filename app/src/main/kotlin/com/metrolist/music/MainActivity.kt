@@ -711,11 +711,16 @@ class MainActivity : FragmentActivity() {
             }
 
             CompositionLocalProvider(LocalDensity provides scaledDensity) {
+            val headUnitTopBarPadding =
+                with(scaledDensity) {
+                    (HEAD_UNIT_TOP_BAR_PX - WindowInsets.systemBars.getTop(this)).coerceAtLeast(0).toDp()
+                }
             BoxWithConstraints(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface),
+                        .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
+                        .padding(top = headUnitTopBarPadding),
             ) {
                 val density = LocalDensity.current
                 val configuration = LocalWindowInfo.current
@@ -1719,6 +1724,10 @@ class MainActivity : FragmentActivity() {
 val LocalDatabase = staticCompositionLocalOf<MusicDatabase> { error("No database provided") }
 val LocalNavController = staticCompositionLocalOf<NavController> { error("No NavController provided") }
 val LocalPlayerConnection = staticCompositionLocalOf<PlayerConnection?> { error("No PlayerConnection provided") }
+// The MG4 head unit draws its own top bar over apps without reporting it as an inset.
+// Height in physical pixels, measured by the DiAuto-MG4 project (OemDisplayChrome.TOP_BAR_PX).
+private const val HEAD_UNIT_TOP_BAR_PX = 80
+
 val LocalPlayerAwareWindowInsets = compositionLocalOf<WindowInsets> { error("No WindowInsets provided") }
 val LocalDownloadUtil = staticCompositionLocalOf<DownloadUtil> { error("No DownloadUtil provided") }
 val LocalSyncUtils = staticCompositionLocalOf<SyncUtils> { error("No SyncUtils provided") }

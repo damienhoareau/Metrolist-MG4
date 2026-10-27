@@ -51,8 +51,8 @@ adb shell am force-stop "$PKG"
 sleep 2
 adb shell am start -n "$PKG/$ACT"
 sleep 25
-# First speed-dial card starts playback.
-adb shell input tap $((W * 19 / 100)) $((H * 72 / 100))
+# First speed-dial card starts playback (shifted down by the 80 px head unit bar).
+adb shell input tap $((W * 19 / 100)) $((H * 85 / 100))
 sleep 20
 shot player-1-after-card-tap
 # Swipe up on the mini player to expand it.
