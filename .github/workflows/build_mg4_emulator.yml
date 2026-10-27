@@ -10,9 +10,9 @@ on:
       screen_size:
         description: "Emulated screen size (WxH)"
         default: "1744x640"
-      screen_density:
-        description: "Emulated screen density (dpi)"
-        default: "240"
+      screen_densities:
+        description: "Emulated dpi:label pairs to compare (space separated)"
+        default: "192:1.00x 240:1.25x 288:1.50x"
 
 permissions:
   contents: write # publish screenshots to the preview-shots branch
@@ -75,7 +75,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         env:
           SCREEN_SIZE: ${{ inputs.screen_size || '1744x640' }}
-          SCREEN_DENSITY: ${{ inputs.screen_density || '240' }}
+          SCREEN_DENSITIES: ${{ inputs.screen_densities || '192:1.00x 240:1.25x 288:1.50x' }}
         with:
           api-level: 28
           arch: x86_64

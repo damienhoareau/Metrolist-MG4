@@ -32,10 +32,15 @@ enum class MiniPlayerBackgroundStyle {
 
 val DensityScaleKey = floatPreferencesKey("density_scale_factor")
 
+// The MG4 head unit is viewed from the driver's seat, so the UI starts larger.
+const val DefaultDensityScale = 1.25f
+
 enum class DensityScale(
     val value: Float,
     val label: String,
 ) {
+    EXTRA_LARGE(1.75f, "Extra Large (175%)"),
+    LARGER(1.5f, "Larger (150%)"),
     LARGE(1.25f, "Large (125%)"),
     SLIGHTLY_LARGE(1.15f, "Slightly Large (115%)"),
     NATIVE(1.0f, "Native (100%)"),

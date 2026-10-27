@@ -56,6 +56,7 @@ import com.metrolist.music.R
 import com.metrolist.music.constants.ChipSortTypeKey
 import com.metrolist.music.constants.CropAlbumArtKey
 import com.metrolist.music.constants.DefaultOpenTabKey
+import com.metrolist.music.constants.DefaultDensityScale
 import com.metrolist.music.constants.DensityScale
 import com.metrolist.music.constants.DensityScaleKey
 import com.metrolist.music.constants.DynamicThemeKey
@@ -278,7 +279,7 @@ fun AppearanceSettings(
             defaultValue = false,
         )
 
-    val (densityScale, onDensityScaleChange) = rememberPreference(DensityScaleKey, defaultValue = 1f)
+    val (densityScale, onDensityScaleChange) = rememberPreference(DensityScaleKey, defaultValue = DefaultDensityScale)
     var showDensityScaleDialog by rememberSaveable { mutableStateOf(false) }
 
     val (listenTogetherInTopBar, onListenTogetherInTopBarChange) =

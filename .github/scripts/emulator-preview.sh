@@ -23,18 +23,24 @@ dump_ui() {
 
 # Area the app gets on the head unit; hide the emulator's own system bars.
 adb shell wm size "${SCREEN_SIZE:-1744x640}"
-adb shell wm density "${SCREEN_DENSITY:-240}"
 adb shell settings put global policy_control "immersive.full=*" || true
 
 adb install -r "$APK" || { echo "install failed"; exit 1; }
 adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS || true
 adb shell pm grant "$PKG" android.permission.RECORD_AUDIO || true
 
-adb shell am start -n "$PKG/$ACT"
-for t in 15 30 45; do
-  sleep 15
-  shot "launch-${t}s"
-  dump_ui "$OUT/ui-$t.xml" || echo "ui dump $t failed" >> "$OUT/notes.txt"
+# The app now defaults to a 1.25x density scale, so an emulated density D gives
+# an overall scale of D/240 * 1.25 compared with the previous 240 dpi look.
+# Each entry is "emulated_dpi:overall_scale_label".
+for entry in ${SCREEN_DENSITIES:-192:1.00x 240:1.25x 288:1.50x}; do
+  dpi="${entry%%:*}"; label="${entry##*:}"
+  adb shell am force-stop "$PKG"
+  adb shell wm density "$dpi"
+  sleep 3
+  adb shell am start -n "$PKG/$ACT"
+  sleep 25
+  shot "scale-$label"
+  dump_ui "$OUT/ui-$label.xml" || echo "ui dump $label failed" >> "$OUT/notes.txt"
 done
 
 adb logcat -d -t 4000 > "$OUT/logcat.txt" || true
