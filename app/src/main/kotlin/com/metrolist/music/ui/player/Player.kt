@@ -179,6 +179,7 @@ import com.metrolist.music.ui.component.SquigglySlider
 import com.metrolist.music.ui.component.WavySlider
 import com.metrolist.music.ui.component.rememberBottomSheetState
 import com.metrolist.music.ui.menu.PlayerMenu
+import com.metrolist.music.ui.screens.Screens
 import com.metrolist.music.ui.screens.settings.DarkMode
 import com.metrolist.music.ui.theme.PlayerColorExtractor
 import com.metrolist.music.ui.theme.PlayerSliderColors
@@ -2027,6 +2028,47 @@ fun BottomSheetPlayer(
                     }
 
                     Spacer(Modifier.height(30.dp))
+                }
+            }
+        }
+
+        if (state.isExpanded && !isFullScreen) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.TopStart)
+                        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top + WindowInsetsSides.Start))
+                        .padding(12.dp),
+            ) {
+                listOf(
+                    Triple(Screens.Home, R.drawable.home_outlined, R.string.home),
+                    Triple(Screens.Search, R.drawable.search, R.string.search),
+                ).forEach { (screen, icon, label) ->
+                    FilledIconButton(
+                        onClick = {
+                            state.collapseSoft()
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        colors =
+                            IconButtonDefaults.filledIconButtonColors(
+                                containerColor = textButtonColor,
+                                contentColor = iconButtonColor,
+                            ),
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(
+                            painter = painterResource(icon),
+                            contentDescription = stringResource(label),
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
                 }
             }
         }
