@@ -994,4 +994,6 @@
     <string name="stream_source_web_creator_desc">Creator web client.</string>
     <string name="top_result">Top result</string>
     <string name="other">Other</string>
+    <string name="voice_search">Voice search</string>
+    <string name="voice_search_unavailable">No voice input app available</string>
 </resources>
