@@ -74,6 +74,7 @@ import com.metrolist.music.constants.SearchSourceKey
 import com.metrolist.music.db.entities.SearchHistory
 import com.metrolist.music.playback.queues.YouTubeQueue
 import com.metrolist.music.ui.component.HideOnScrollFAB
+import com.metrolist.music.utils.CarVoiceFocus
 import com.metrolist.music.utils.SearchRoutes
 import com.metrolist.music.utils.rememberEnumPreference
 import com.metrolist.music.utils.rememberPreference
@@ -189,6 +190,7 @@ fun SearchScreen(
     val voiceSearchUnavailableText = stringResource(R.string.voice_search_unavailable)
     val voiceSearchLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            CarVoiceFocus.release(context)
             val spokenText =
                 result.data
                     ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
@@ -205,11 +207,18 @@ fun SearchScreen(
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
             }
-        try {
-            voiceSearchLauncher.launch(intent)
-        } catch (e: ActivityNotFoundException) {
-            Toast.makeText(context, voiceSearchUnavailableText, Toast.LENGTH_SHORT).show()
+        coroutineScope.launch {
+            CarVoiceFocus.acquire(context)
+            try {
+                voiceSearchLauncher.launch(intent)
+            } catch (e: ActivityNotFoundException) {
+                CarVoiceFocus.release(context)
+                Toast.makeText(context, voiceSearchUnavailableText, Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+    DisposableEffect(Unit) {
+        onDispose { CarVoiceFocus.release(context) }
     }
 
     Scaffold(
