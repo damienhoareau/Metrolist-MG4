@@ -157,6 +157,7 @@ fun Queue(
     pureBlack: Boolean,
     showInlineLyrics: Boolean,
     playerBackground: PlayerBackgroundStyle = PlayerBackgroundStyle.DEFAULT,
+    showCollapsedControls: Boolean = true,
     onToggleLyrics: () -> Unit = {},
 ) {
     val navController = LocalNavController.current
@@ -263,7 +264,9 @@ fun Queue(
             Box(Modifier.fillMaxSize().background(Color.Unspecified))
         },
         collapsedContent = {
-            if (useNewPlayerDesign) {
+            if (!showCollapsedControls) {
+                Spacer(Modifier.height(0.dp))
+            } else if (useNewPlayerDesign) {
                 // New design
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
