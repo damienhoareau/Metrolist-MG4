@@ -512,6 +512,11 @@ class MusicService :
     private var cachedShufflePlaylistFirst = false
     @Volatile
     private var cachedAutoLoadMore = true
+    @Volatile
+    private var cachedSimilarContent = true
+
+    // Song the queue-end radio was last requested for, so one track triggers a single request.
+    private var queueEndRadioSeedId: String? = null
 
     // URL cache for stream URLs - class-level so it can be invalidated on errors
     private val songUrlCache = StreamUrlCache()
@@ -1191,6 +1196,9 @@ class MusicService :
         scope.launch {
             dataStore.data.map { it[AutoLoadMoreKey] ?: true }.distinctUntilChanged().collect { cachedAutoLoadMore = it }
         }
+        scope.launch {
+            dataStore.data.map { it[SimilarContent] ?: true }.distinctUntilChanged().collect { cachedSimilarContent = it }
+        }
         if (startupPrefs!![PersistentQueueKey] ?: true) {
             val queueFile = filesDir.resolve(PERSISTENT_QUEUE_FILE)
             if (queueFile.exists()) {
@@ -1808,6 +1816,7 @@ class MusicService :
 
         currentQueue = queue
         queueTitle = null
+        queueEndRadioSeedId = null
         val persistShuffleAcrossQueues = dataStore.get(PersistentShuffleAcrossQueuesKey, false)
         if (!persistShuffleAcrossQueues && !restoringQueue) {
             player.shuffleModeEnabled = false
@@ -1873,18 +1882,18 @@ class MusicService :
         originalQueueSize = initialQueueSize
     }
 
-    fun startRadioSeamlessly() {
+    fun startRadioSeamlessly(): Job? {
         if (!playerInitialized.value) {
             Timber.tag(TAG).w("startRadioSeamlessly called before player initialization")
-            return
+            return null
         }
 
-        val currentMediaMetadata = player.currentMetadata ?: return
+        val currentMediaMetadata = player.currentMetadata ?: return null
 
         val currentIndex = player.currentMediaItemIndex
         val currentMediaId = currentMediaMetadata.id
 
-        scope.launch(SilentHandler) {
+        return scope.launch(SilentHandler) {
             // Use simple videoId to let YouTube personalize recommendations
             val radioQueue =
                 YouTubeQueue(
@@ -2631,9 +2640,33 @@ class MusicService :
             }
         }
 
+        if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO ||
+            reason == Player.MEDIA_ITEM_TRANSITION_REASON_SEEK
+        ) {
+            requestSimilarSongsAtQueueEnd()
+        }
+
         if (cachedPersistentQueue) {
             saveQueueToDisk()
         }
+    }
+
+    /**
+     * Keeps playing after the last song, like YouTube Music: when the queue has no next song
+     * and no page left to load, a radio built from the current song is appended.
+     */
+    private fun requestSimilarSongsAtQueueEnd() {
+        val seed = player.currentMetadata ?: return
+        if (!cachedSimilarContent ||
+            player.repeatMode != REPEAT_MODE_OFF ||
+            player.hasNextMediaItem() ||
+            currentQueue.hasNextPage() ||
+            queueEndRadioSeedId == seed.id
+        ) {
+            return
+        }
+        queueEndRadioSeedId = seed.id
+        startRadioSeamlessly()
     }
 
     override fun onPlaybackStateChanged(
@@ -2673,6 +2706,18 @@ class MusicService :
                 player.prepare()
                 if (castConnectionHandler?.isCasting?.value != true) {
                     player.play()
+                }
+            } else if (player.playWhenReady && cachedSimilarContent && !player.hasNextMediaItem()) {
+                // The radio requested on reaching the last song failed or never ran (offline, single song).
+                scope.launch {
+                    startRadioSeamlessly()?.join()
+                    if (player.playbackState == Player.STATE_ENDED && player.hasNextMediaItem()) {
+                        player.seekToNextMediaItem()
+                        player.prepare()
+                        if (castConnectionHandler?.isCasting?.value != true) {
+                            player.play()
+                        }
+                    }
                 }
             }
         }
