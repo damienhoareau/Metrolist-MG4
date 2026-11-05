@@ -206,6 +206,7 @@ import com.metrolist.music.playback.queues.filterExplicit
 import com.metrolist.music.playback.queues.filterVideoSongs
 import com.metrolist.music.constants.LoudnessLevel
 import com.metrolist.music.constants.LoudnessLevelKey
+import com.metrolist.music.utils.CarWheelKeys
 import com.metrolist.music.utils.CoilBitmapLoader
 import com.metrolist.music.utils.NetworkConnectivityObserver
 import com.metrolist.music.utils.ScrobbleManager
@@ -600,6 +601,7 @@ class MusicService :
         super.onCreate()
         isRunning = true
         shutdownDeferred = kotlinx.coroutines.CompletableDeferred<Unit>()
+        CarWheelKeys.attach(this)
 
         setListener(
             object : MediaSessionService.Listener {
@@ -4263,6 +4265,7 @@ class MusicService :
 
     override fun onDestroy() {
         isRunning = false
+        CarWheelKeys.detach(this)
 
         if (!::player.isInitialized) {
             try {

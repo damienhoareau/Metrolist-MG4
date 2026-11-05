@@ -103,8 +103,34 @@ object CarVoiceFocus {
             }
         }
 
+    /** A car manager by service name, or null when the car service is unavailable. */
+    internal fun carManager(
+        context: Context,
+        name: String,
+    ): Any? =
+        synchronized(lock) {
+            val connected = ensureCar(context) ?: return null
+            try {
+                connected.javaClass.getMethod("getCarManager", String::class.java).invoke(connected, name)
+            } catch (e: Exception) {
+                Timber.tag(TAG).w(e, "car manager %s unavailable", name)
+                null
+            }
+        }
+
     private fun connect(context: Context): Any? {
         appFocusManager?.let { return it }
+        return try {
+            val service = Class.forName("android.car.Car").getField("APP_FOCUS_SERVICE").get(null) as String
+            carManager(context, service).also { appFocusManager = it }
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "car app focus unavailable")
+            null
+        }
+    }
+
+    private fun ensureCar(context: Context): Any? {
+        car?.let { return it }
         return try {
             val carClass = Class.forName("android.car.Car")
             val connected = CountDownLatch(1)
@@ -122,22 +148,16 @@ object CarVoiceFocus {
                         }
                     }
                 }
-            val createdCar =
-                car ?: carClass
-                    .getMethod("createCar", Context::class.java, ServiceConnection::class.java)
-                    .invoke(null, context, connection)
-                    .also {
-                        car = it
-                        runCatching { carClass.getMethod("connect").invoke(it) }
-                    }
-            connected.await(CONNECT_TIMEOUT_MS, TimeUnit.MILLISECONDS)
-            val service = carClass.getField("APP_FOCUS_SERVICE").get(null) as String
             carClass
-                .getMethod("getCarManager", String::class.java)
-                .invoke(createdCar, service)
-                .also { appFocusManager = it }
+                .getMethod("createCar", Context::class.java, ServiceConnection::class.java)
+                .invoke(null, context, connection)
+                .also {
+                    car = it
+                    runCatching { carClass.getMethod("connect").invoke(it) }
+                    connected.await(CONNECT_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+                }
         } catch (e: Exception) {
-            Timber.tag(TAG).w(e, "car app focus unavailable")
+            Timber.tag(TAG).w(e, "car service unavailable")
             null
         }
     }

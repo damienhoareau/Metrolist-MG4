@@ -205,6 +205,7 @@ import com.metrolist.music.ui.utils.HEAD_UNIT_TOP_BAR_PX
 import com.metrolist.music.ui.utils.HeadUnitDialog
 import com.metrolist.music.ui.utils.appBarScrollBehavior
 import com.metrolist.music.ui.utils.resetHeightOffset
+import com.metrolist.music.utils.CarWheelKeys
 import com.metrolist.music.utils.ReleaseInfo
 import com.metrolist.music.utils.SearchRoutes
 import com.metrolist.music.utils.SyncUtils
@@ -399,6 +400,7 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         window.decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        CarWheelKeys.enable()
 
         // Initialize Listen Together manager
         listenTogetherManager.initialize()
