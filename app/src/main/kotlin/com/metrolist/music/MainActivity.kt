@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.asPaddingValues
@@ -101,7 +102,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.window.DialogProperties
@@ -720,18 +720,16 @@ class MainActivity : FragmentActivity() {
                 with(scaledDensity) {
                     (HEAD_UNIT_TOP_BAR_PX - WindowInsets.systemBars.getTop(this)).coerceAtLeast(0).toDp()
                 }
-            val headUnitLeftBarPadding =
-                with(scaledDensity) {
-                    (HEAD_UNIT_LEFT_BAR_PX - WindowInsets.systemBars.getLeft(this, LayoutDirection.Ltr))
-                        .coerceAtLeast(0)
-                        .toDp()
-                }
+            // The head unit reports the dock as a left inset, but most screens only honour the top and
+            // bottom ones, so the root always pads and consumes it for the screens that do read it.
+            val headUnitLeftBarPadding = with(scaledDensity) { HEAD_UNIT_LEFT_BAR_PX.toDp() }
             BoxWithConstraints(
                 modifier =
                     Modifier
                         .fillMaxSize()
                         .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
-                        .padding(top = headUnitTopBarPadding, start = headUnitLeftBarPadding),
+                        .padding(top = headUnitTopBarPadding, start = headUnitLeftBarPadding)
+                        .consumeWindowInsets(WindowInsets(left = HEAD_UNIT_LEFT_BAR_PX)),
             ) {
                 val density = LocalDensity.current
                 val configuration = LocalWindowInfo.current
