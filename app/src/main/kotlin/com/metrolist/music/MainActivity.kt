@@ -101,9 +101,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAny
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -200,6 +200,9 @@ import com.metrolist.music.ui.theme.ColorSaver
 import com.metrolist.music.ui.theme.DefaultThemeColor
 import com.metrolist.music.ui.theme.MetrolistTheme
 import com.metrolist.music.ui.theme.extractThemeColor
+import com.metrolist.music.ui.utils.HEAD_UNIT_LEFT_BAR_PX
+import com.metrolist.music.ui.utils.HEAD_UNIT_TOP_BAR_PX
+import com.metrolist.music.ui.utils.HeadUnitDialog
 import com.metrolist.music.ui.utils.appBarScrollBehavior
 import com.metrolist.music.ui.utils.resetHeightOffset
 import com.metrolist.music.utils.ReleaseInfo
@@ -715,12 +718,18 @@ class MainActivity : FragmentActivity() {
                 with(scaledDensity) {
                     (HEAD_UNIT_TOP_BAR_PX - WindowInsets.systemBars.getTop(this)).coerceAtLeast(0).toDp()
                 }
+            val headUnitLeftBarPadding =
+                with(scaledDensity) {
+                    (HEAD_UNIT_LEFT_BAR_PX - WindowInsets.systemBars.getLeft(this, LayoutDirection.Ltr))
+                        .coerceAtLeast(0)
+                        .toDp()
+                }
             BoxWithConstraints(
                 modifier =
                     Modifier
                         .fillMaxSize()
                         .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
-                        .padding(top = headUnitTopBarPadding),
+                        .padding(top = headUnitTopBarPadding, start = headUnitLeftBarPadding),
             ) {
                 val density = LocalDensity.current
                 val configuration = LocalWindowInfo.current
@@ -1430,7 +1439,7 @@ class MainActivity : FragmentActivity() {
 
                     sharedSong?.let { song ->
                         playerConnection?.let {
-                            Dialog(
+                            HeadUnitDialog(
                                 onDismissRequest = { sharedSong = null },
                                 properties = DialogProperties(usePlatformDefaultWidth = false),
                             ) {
@@ -1724,10 +1733,6 @@ class MainActivity : FragmentActivity() {
 val LocalDatabase = staticCompositionLocalOf<MusicDatabase> { error("No database provided") }
 val LocalNavController = staticCompositionLocalOf<NavController> { error("No NavController provided") }
 val LocalPlayerConnection = staticCompositionLocalOf<PlayerConnection?> { error("No PlayerConnection provided") }
-// The MG4 head unit draws its own top bar over apps without reporting it as an inset.
-// Height in physical pixels, measured by the DiAuto-MG4 project (OemDisplayChrome.TOP_BAR_PX).
-private const val HEAD_UNIT_TOP_BAR_PX = 80
-
 val LocalPlayerAwareWindowInsets = compositionLocalOf<WindowInsets> { error("No WindowInsets provided") }
 val LocalDownloadUtil = staticCompositionLocalOf<DownloadUtil> { error("No DownloadUtil provided") }
 val LocalSyncUtils = staticCompositionLocalOf<SyncUtils> { error("No SyncUtils provided") }

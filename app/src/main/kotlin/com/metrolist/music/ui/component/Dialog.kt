@@ -55,11 +55,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.metrolist.music.LocalNavController
 import com.metrolist.music.R
 import com.metrolist.music.ui.screens.settings.AccountSettings
+import com.metrolist.music.ui.utils.HeadUnitDialog
 import kotlinx.coroutines.delay
 
 @Composable
@@ -72,7 +72,7 @@ fun DefaultDialog(
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Dialog(
+    HeadUnitDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
@@ -142,13 +142,14 @@ fun AccountSettingsDialog(
     latestVersionName: String,
 ) {
     val navController = LocalNavController.current
-    Dialog(
+    HeadUnitDialog(
         onDismissRequest = onDismiss,
         properties =
             DialogProperties(
                 usePlatformDefaultWidth = false,
                 dismissOnClickOutside = true,
             ),
+        includeTopInset = false,
     ) {
         Box(
             modifier =
@@ -245,7 +246,7 @@ fun ListDialog(
     modifier: Modifier = Modifier,
     content: LazyListScope.() -> Unit,
 ) {
-    Dialog(
+    HeadUnitDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {

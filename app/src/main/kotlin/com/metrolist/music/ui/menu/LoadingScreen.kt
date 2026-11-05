@@ -31,9 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.metrolist.music.R
+import com.metrolist.music.ui.utils.HeadUnitDialog
 
 @Composable
 fun LoadingScreen(
@@ -44,7 +44,7 @@ fun LoadingScreen(
 ) {
     if (!isVisible) return
 
-    Dialog(
+    HeadUnitDialog(
         onDismissRequest = { },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,

@@ -41,9 +41,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.metrolist.music.R
+import com.metrolist.music.ui.utils.HeadUnitDialog
 import com.metrolist.music.viewmodels.ConvertedSongLog
 import com.metrolist.music.viewmodels.CsvImportState
 
@@ -61,7 +61,7 @@ fun CsvColumnMappingDialog(
     var urlColumnIndex by remember { mutableIntStateOf(csvState.urlColumnIndex) }
     var hasHeader by remember { mutableStateOf(csvState.hasHeader) }
 
-    Dialog(
+    HeadUnitDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
@@ -292,7 +292,7 @@ fun CsvImportProgressDialog(
 ) {
     if (!isVisible) return
 
-    Dialog(
+    HeadUnitDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = false, dismissOnClickOutside = false),
     ) {
