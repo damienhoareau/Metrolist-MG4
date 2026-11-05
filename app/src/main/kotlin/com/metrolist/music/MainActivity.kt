@@ -875,12 +875,14 @@ class MainActivity : FragmentActivity() {
                 val playerReady by playerReadyState
                 val activePlayerConnection = if (playerReady) playerConnection else null
 
+                val noTopBarSpace = showRail && currentRoute != "settings" && currentRoute in topLevelScreens
                 val playerAwareWindowInsets =
                     remember(
                         bottomInset,
                         shouldShowNavigationBar,
                         playerBottomSheetState.isDismissed,
                         showRail,
+                        noTopBarSpace,
                     ) {
                         var bottom = bottomInset
                         if (shouldShowNavigationBar && !showRail) {
@@ -889,7 +891,7 @@ class MainActivity : FragmentActivity() {
                         if (!playerBottomSheetState.isDismissed) bottom += MiniPlayerHeight
                         windowsInsets
                             .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
-                            .add(WindowInsets(top = AppBarHeight, bottom = bottom))
+                            .add(WindowInsets(top = if (noTopBarSpace) 0.dp else AppBarHeight, bottom = bottom))
                     }
                 appBarScrollBehavior(
                     canScroll = {
@@ -984,12 +986,14 @@ class MainActivity : FragmentActivity() {
 
                 var shouldShowTopBar by rememberSaveable { mutableStateOf(false) }
 
-                LaunchedEffect(navBackStackEntry, listenTogetherInTopBar) {
+                LaunchedEffect(navBackStackEntry, listenTogetherInTopBar, showRail) {
                     val currentRoute = navBackStackEntry?.destination?.route
                     val isListenTogetherScreen =
                         currentRoute == Screens.ListenTogether.route ||
                             currentRoute == "listen_together_from_topbar"
-                    shouldShowTopBar = currentRoute in topLevelScreens &&
+                    // With the rail, the top bar actions live at the bottom of the rail instead.
+                    shouldShowTopBar = !showRail &&
+                        currentRoute in topLevelScreens &&
                         currentRoute != "settings" &&
                         !(isListenTogetherScreen && listenTogetherInTopBar)
                 }
@@ -1351,6 +1355,29 @@ class MainActivity : FragmentActivity() {
                                     pureBlack = pureBlack,
                                     onSearchLongClick = onRailSearchLongClick,
                                     onHomeLongHold = { showAccountDialog = true },
+                                    bottomContent = {
+                                        IconButton(onClick = { showAccountDialog = true }, modifier = Modifier.size(40.dp)) {
+                                            BadgedBox(badge = {
+                                                if (latestVersionName != BuildConfig.BASE_VERSION_NAME) {
+                                                    Badge()
+                                                }
+                                            }) {
+                                                if (accountImageUrl != null) {
+                                                    AsyncImage(
+                                                        model = accountImageUrl,
+                                                        contentDescription = stringResource(R.string.account),
+                                                        modifier = Modifier.size(24.dp).clip(CircleShape),
+                                                    )
+                                                } else {
+                                                    Icon(
+                                                        painter = painterResource(R.drawable.account),
+                                                        contentDescription = stringResource(R.string.account),
+                                                        modifier = Modifier.size(24.dp),
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    },
                                 )
                             }
                             Box(Modifier.weight(1f)) {

@@ -7,7 +7,9 @@ package com.metrolist.music.ui.component
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -29,9 +31,15 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.metrolist.music.ui.screens.Screens
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+
+// Visible gap above the first rail item matches the one below the bottom action.
+private val RailTopMargin = 12.dp
+private val RailBottomMargin = 19.dp
+private val RailCompactItemHeight = 48.dp
 
 @Stable
 private fun isRouteSelected(currentRoute: String?, screenRoute: String, navigationItems: List<Screens>): Boolean {
@@ -56,6 +64,7 @@ fun AppNavigationRail(
     pureBlack: Boolean = false,
     onSearchLongClick: (() -> Unit)? = null,
     onHomeLongHold: (() -> Unit)? = null,
+    bottomContent: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
     val haptics = LocalHapticFeedback.current
@@ -65,7 +74,7 @@ fun AppNavigationRail(
         modifier = modifier,
         containerColor = containerColor
     ) {
-        Spacer(modifier = Modifier.weight(1f))
+        if (bottomContent == null) Spacer(modifier = Modifier.weight(1f)) else Spacer(modifier = Modifier.height(RailTopMargin))
 
         navigationItems.forEach { screen ->
             val isSelected = remember(currentRoute, screen.route) {
@@ -107,6 +116,7 @@ fun AppNavigationRail(
             }
 
             NavigationRailItem(
+                modifier = if (bottomContent != null) Modifier.height(RailCompactItemHeight) else Modifier,
                 selected = isSelected,
                 onClick = {
                     if (!isSearchItem && !isHomeHoldItem) {
@@ -125,6 +135,11 @@ fun AppNavigationRail(
         }
 
         Spacer(modifier = Modifier.weight(1f))
+
+        bottomContent?.let {
+            it(this)
+            Spacer(modifier = Modifier.height(RailBottomMargin))
+        }
     }
 }
 
