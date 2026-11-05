@@ -208,6 +208,7 @@ import com.metrolist.music.constants.LoudnessLevel
 import com.metrolist.music.constants.LoudnessLevelKey
 import com.metrolist.music.utils.CarWheelKeys
 import com.metrolist.music.utils.CoilBitmapLoader
+import com.metrolist.music.utils.WifiWatchdog
 import com.metrolist.music.utils.NetworkConnectivityObserver
 import com.metrolist.music.utils.ScrobbleManager
 import com.metrolist.music.utils.SyncUtils
@@ -328,6 +329,7 @@ class MusicService :
         }
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var wifiWatchdog: WifiWatchdog? = null
 
     private val binder = MusicBinder()
 
@@ -602,6 +604,8 @@ class MusicService :
         isRunning = true
         shutdownDeferred = kotlinx.coroutines.CompletableDeferred<Unit>()
         CarWheelKeys.attach(this)
+        wifiWatchdog =
+            WifiWatchdog(this) { ::player.isInitialized && player.playWhenReady }.also { it.start(scope) }
 
         setListener(
             object : MediaSessionService.Listener {
@@ -4266,6 +4270,7 @@ class MusicService :
     override fun onDestroy() {
         isRunning = false
         CarWheelKeys.detach(this)
+        wifiWatchdog?.stop()
 
         if (!::player.isInitialized) {
             try {
