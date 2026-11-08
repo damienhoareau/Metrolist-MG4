@@ -206,6 +206,7 @@ import com.metrolist.music.playback.queues.filterExplicit
 import com.metrolist.music.playback.queues.filterVideoSongs
 import com.metrolist.music.constants.LoudnessLevel
 import com.metrolist.music.constants.LoudnessLevelKey
+import com.metrolist.music.utils.CarMediaSource
 import com.metrolist.music.utils.CarWheelKeys
 import com.metrolist.music.utils.CoilBitmapLoader
 import com.metrolist.music.utils.WifiWatchdog
@@ -302,9 +303,11 @@ class MusicService :
 
     private lateinit var audioManager: AudioManager
     private var audioFocusRequest: AudioFocusRequest? = null
+    private var audioFocusTagged = false
     private var lastAudioFocusState = AudioManager.AUDIOFOCUS_NONE
     private var wasPlayingBeforeAudioFocusLoss = false
-    private var hasAudioFocus = false
+    var hasAudioFocus = false
+        private set
     private var reentrantFocusGain = false
     private var wasPlayingBeforeVolumeMute = false
     private var isPausedByVolumeMute = false
@@ -1408,15 +1411,18 @@ class MusicService :
     }
 
     private fun setupAudioFocusRequest() {
+        audioFocusTagged = CarMediaSource.enabled
         audioFocusRequest =
             AudioFocusRequest
                 .Builder(AudioManager.AUDIOFOCUS_GAIN)
                 .setAudioAttributes(
-                    android.media.AudioAttributes
-                        .Builder()
-                        .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
-                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build(),
+                    CarMediaSource
+                        .tag(
+                            android.media.AudioAttributes
+                                .Builder()
+                                .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC),
+                        ).build(),
                 ).setOnAudioFocusChangeListener { focusChange ->
                     handleAudioFocusChange(focusChange)
                 }.setAcceptsDelayedFocusGain(true)
@@ -1490,11 +1496,18 @@ class MusicService :
     }
 
     private fun requestAudioFocus(): Boolean {
-        if (hasAudioFocus) return true
+        if (hasAudioFocus && audioFocusTagged == CarMediaSource.enabled) return true
 
+        // The car source tag is only added once the user opened the app, so the request is rebuilt then.
+        if (audioFocusTagged != CarMediaSource.enabled) {
+            audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
+            hasAudioFocus = false
+            setupAudioFocusRequest()
+        }
         audioFocusRequest?.let { request ->
             val result = audioManager.requestAudioFocus(request)
             hasAudioFocus = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            if (hasAudioFocus) CarMediaSource.claim(this)
             return hasAudioFocus
         }
         return false

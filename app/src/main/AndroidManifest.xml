@@ -59,6 +59,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|keyboard|keyboardHidden|navigation|fontScale|layoutDirection|locale"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:theme="@style/Theme.Metrolist"
@@ -160,6 +161,21 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
+
+        <!-- Launched by the MG4 head unit's patched Music app (see mg4-music). -->
+        <activity
+            android:name="com.saicmotor.onlinemedia.MediaAppActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:theme="@style/Theme.Metrolist"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Bound by the MG4 head unit's media service for the native player and steering wheel keys. -->
+        <service
+            android:name="com.saicmotor.onlinemedia.service.PlayService"
+            android:exported="true"
+            tools:ignore="ExportedService" />
 
         <!-- Legacy launcher alias kept for upgrade compatibility.
              Users upgrading from older builds may have this component
