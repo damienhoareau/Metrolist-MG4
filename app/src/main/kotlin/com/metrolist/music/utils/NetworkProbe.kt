@@ -23,10 +23,11 @@ import java.net.SocketTimeoutException
 
 /**
  * The MG4 head unit sometimes stops sending anything to its hotspot for a few minutes while the link
- * stays up, and a Wi-Fi reconnect clears it in seconds. While music plays this probes the gateway and
- * reconnects when it stops answering. A refused connection counts as an answer: only silence is a fault.
+ * stays up. While music plays this probes the gateway and logs when it stops answering, to diagnose
+ * those outages. It never touches the Wi-Fi connection. A refused connection counts as an answer: only
+ * silence is a fault.
  */
-class WifiWatchdog(
+class NetworkProbe(
     context: Context,
     private val isPlaying: () -> Boolean,
 ) {
@@ -34,7 +35,6 @@ class WifiWatchdog(
     private val wifiManager = appContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
     private val connectivityManager = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private var job: Job? = null
-    private var wifiLock: WifiManager.WifiLock? = null
 
     fun start(scope: CoroutineScope) {
         if (job != null) return
@@ -44,50 +44,25 @@ class WifiWatchdog(
     fun stop() {
         job?.cancel()
         job = null
-        releaseLock()
     }
 
     private suspend fun watch() {
         var misses = 0
-        var lastRecoveryAt = 0L
-        var reassociated = false
         while (true) {
             delay(PROBE_INTERVAL_MS)
             if (!isPlaying() || !onWifi()) {
                 misses = 0
-                reassociated = false
-                releaseLock()
                 continue
             }
-            acquireLock()
             val gateway = gatewayAddress() ?: continue
             if (withContext(Dispatchers.IO) { answers(gateway) }) {
+                if (misses > 0) Timber.tag(TAG).i("gateway %s answers again after %d misses", gateway, misses)
                 misses = 0
-                reassociated = false
                 continue
             }
             misses++
             Timber.tag(TAG).i("gateway %s silent, miss %d", gateway, misses)
-            val now = System.currentTimeMillis()
-            if (misses < MISSES_BEFORE_RECOVERY || now - lastRecoveryAt < RECOVERY_COOLDOWN_MS) continue
-            lastRecoveryAt = now
-            misses = 0
-            recover(escalate = reassociated)
-            reassociated = true
         }
-    }
-
-    @Suppress("DEPRECATION")
-    private fun recover(escalate: Boolean) {
-        Timber.tag(TAG).w("recovering Wi-Fi, escalate=%b", escalate)
-        runCatching {
-            if (escalate) {
-                wifiManager.disconnect()
-                wifiManager.reconnect()
-            } else {
-                wifiManager.reassociate()
-            }
-        }.onFailure { Timber.tag(TAG).w(it, "Wi-Fi recovery refused") }
     }
 
     private fun onWifi(): Boolean {
@@ -117,27 +92,10 @@ class WifiWatchdog(
             false
         }
 
-    @Suppress("DEPRECATION")
-    private fun acquireLock() {
-        if (wifiLock?.isHeld == true) return
-        wifiLock =
-            wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, TAG).apply {
-                setReferenceCounted(false)
-                acquire()
-            }
-    }
-
-    private fun releaseLock() {
-        wifiLock?.takeIf { it.isHeld }?.release()
-        wifiLock = null
-    }
-
     private companion object {
-        const val TAG = "WifiWatchdog"
+        const val TAG = "NetworkProbe"
         const val PROBE_PORT = 80
         const val PROBE_TIMEOUT_MS = 2_000
         const val PROBE_INTERVAL_MS = 8_000L
-        const val MISSES_BEFORE_RECOVERY = 3
-        const val RECOVERY_COOLDOWN_MS = 60_000L
     }
 }
