@@ -708,7 +708,7 @@ fun ContentSettings(
             "LrcLib".takeIf { enableLrclib },
             "KuGou".takeIf { enableKugou },
             "NetEase".takeIf { enableNetEase },
-            "Musixmatch".takeIf { com.metrolist.music.lyrics.MusixmatchLyricsProvider.configured },
+            "Musixmatch",
             "BetterLyrics".takeIf { enableBetterLyrics },
             "Paxsenix".takeIf { enablePaxsenix },
             "LyricsPlus".takeIf { enableLyricsPlus },

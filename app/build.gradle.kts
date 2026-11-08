@@ -74,10 +74,6 @@ android {
         val telegramChatId = localProperties.getProperty("TELEGRAM_CHAT_ID") ?: System.getenv("TELEGRAM_CHAT_ID") ?: ""
         buildConfigField("String", "TELEGRAM_BOT_TOKEN", "\"$telegramToken\"")
         buildConfigField("String", "TELEGRAM_CHAT_ID", "\"$telegramChatId\"")
-
-        // Musixmatch user token, supplied by the user; the provider stays off without it.
-        val musixmatchToken = localProperties.getProperty("MUSIXMATCH_TOKEN") ?: System.getenv("MUSIXMATCH_TOKEN") ?: ""
-        buildConfigField("String", "MUSIXMATCH_TOKEN", "\"$musixmatchToken\"")
         buildConfigField("String", "ARCHITECTURE", "\"${targetAbis.joinToString("+")}\"")
         buildConfigField("Long", "DISCORD_APP_ID", "1447278780795064401L")
     }

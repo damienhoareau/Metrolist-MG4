@@ -6,16 +6,13 @@
 package com.metrolist.music.lyrics
 
 import android.content.Context
-import com.metrolist.music.BuildConfig
 import com.metrolist.musixmatch.Musixmatch
 
-/** Only active when a user token is set as `MUSIXMATCH_TOKEN` in `local.properties`. */
+/** Uses a short-lived token that [Musixmatch] fetches and renews by itself. */
 object MusixmatchLyricsProvider : LyricsProvider {
     override val name = "Musixmatch"
 
-    val configured: Boolean get() = BuildConfig.MUSIXMATCH_TOKEN.isNotBlank()
-
-    override fun isEnabled(context: Context): Boolean = configured
+    override fun isEnabled(context: Context): Boolean = true
 
     override suspend fun getLyrics(
         context: Context,
@@ -24,5 +21,5 @@ object MusixmatchLyricsProvider : LyricsProvider {
         artist: String,
         duration: Int,
         album: String?,
-    ): Result<String> = Musixmatch.getLyrics(BuildConfig.MUSIXMATCH_TOKEN, title, artist, duration, album)
+    ): Result<String> = Musixmatch.getLyrics(title, artist, duration, album)
 }
