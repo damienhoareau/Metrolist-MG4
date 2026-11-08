@@ -64,6 +64,7 @@ import com.metrolist.music.constants.ContentLanguageKey
 import com.metrolist.music.constants.CountryCodeToName
 import com.metrolist.music.constants.EnableBetterLyricsKey
 import com.metrolist.music.constants.EnableKugouKey
+import com.metrolist.music.constants.EnableNetEaseKey
 import com.metrolist.music.constants.EnableLrcLibKey
 import com.metrolist.music.constants.EnablePaxsenixKey
 import com.metrolist.music.constants.EnableLyricsPlus
@@ -125,6 +126,7 @@ fun ContentSettings(
     val (proxyPassword, onProxyPasswordChange) = rememberPreference(key = ProxyPasswordKey, defaultValue = "password")
     val (enableZemer, onEnableZemerChange) = rememberPreference(key = EnableZemerKey, defaultValue = true)
     val (enableKugou, onEnableKugouChange) = rememberPreference(key = EnableKugouKey, defaultValue = true)
+    val (enableNetEase, onEnableNetEaseChange) = rememberPreference(key = EnableNetEaseKey, defaultValue = true)
     val (enableLrclib, onEnableLrclibChange) = rememberPreference(key = EnableLrcLibKey, defaultValue = true)
     val (enableBetterLyrics, onEnableBetterLyricsChange) = rememberPreference(key = EnableBetterLyricsKey, defaultValue = true)
     val (enablePaxsenix, onEnablePaxsenixChange) = rememberPreference(key = EnablePaxsenixKey, defaultValue = true)
@@ -174,6 +176,8 @@ fun ContentSettings(
             "Paxsenix" to "Paxsenix",
             "LrcLib" to "LrcLib",
             "KuGou" to "KuGou",
+            "NetEase" to "NetEase",
+            "Musixmatch" to "Musixmatch",
             "LyricsPlus" to "LyricsPlus",
             "Zemer" to "Zemer",
             "YouTubeSubtitle" to "YouTube Subtitles",
@@ -444,6 +448,35 @@ fun ContentSettings(
                         Column(
                             modifier = Modifier.weight(1f)
                         ) {
+                            Text(stringResource(R.string.enable_netease))
+                            Text(
+                                text = stringResource(R.string.enable_netease_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(
+                            checked = enableNetEase,
+                            onCheckedChange = onEnableNetEaseChange,
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (enableNetEase) R.drawable.check else R.drawable.close
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(stringResource(R.string.enable_better_lyrics))
                             Text(
                                 text = stringResource(R.string.enable_better_lyrics_desc),
@@ -674,6 +707,8 @@ fun ContentSettings(
         val enabledProviders = setOf(
             "LrcLib".takeIf { enableLrclib },
             "KuGou".takeIf { enableKugou },
+            "NetEase".takeIf { enableNetEase },
+            "Musixmatch".takeIf { com.metrolist.music.lyrics.MusixmatchLyricsProvider.configured },
             "BetterLyrics".takeIf { enableBetterLyrics },
             "Paxsenix".takeIf { enablePaxsenix },
             "LyricsPlus".takeIf { enableLyricsPlus },
@@ -682,7 +717,7 @@ fun ContentSettings(
         val lyricsIcon = painterResource(R.drawable.lyrics)
         val draggableItems = remember { mutableStateListOf<DraggableLyricsProviderItem>() }
 
-        LaunchedEffect(normalizedOrder, enableLrclib, enableKugou, enableBetterLyrics, enablePaxsenix, enableLyricsPlus, enableZemer) {
+        LaunchedEffect(normalizedOrder, enableLrclib, enableKugou, enableNetEase, enableBetterLyrics, enablePaxsenix, enableLyricsPlus, enableZemer) {
             val orderedEnabledProviders = normalizedOrder.filter { it in enabledProviders }
             draggableItems.clear()
             draggableItems.addAll(
