@@ -68,6 +68,12 @@ android {
 
         buildConfigField("String", "LASTFM_API_KEY", "\"$lastFmKey\"")
         buildConfigField("String", "LASTFM_SECRET", "\"$lastFmSecret\"")
+
+        // Log upload from the settings screen; set both in local.properties (gitignored) or the environment.
+        val telegramToken = localProperties.getProperty("TELEGRAM_BOT_TOKEN") ?: System.getenv("TELEGRAM_BOT_TOKEN") ?: ""
+        val telegramChatId = localProperties.getProperty("TELEGRAM_CHAT_ID") ?: System.getenv("TELEGRAM_CHAT_ID") ?: ""
+        buildConfigField("String", "TELEGRAM_BOT_TOKEN", "\"$telegramToken\"")
+        buildConfigField("String", "TELEGRAM_CHAT_ID", "\"$telegramChatId\"")
         buildConfigField("String", "ARCHITECTURE", "\"${targetAbis.joinToString("+")}\"")
         buildConfigField("Long", "DISCORD_APP_ID", "1447278780795064401L")
     }

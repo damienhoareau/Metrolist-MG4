@@ -710,6 +710,11 @@
     <string name="ai_system_prompt_reset">Reset to default</string>
 
     <!-- Crash Handler -->
+    <string name="send_logs">Send logs</string>
+    <string name="send_logs_desc">Upload the recent app logs to the developer</string>
+    <string name="send_logs_sending">Sending logs…</string>
+    <string name="send_logs_sent">Logs sent</string>
+    <string name="send_logs_failed">Could not send the logs</string>
     <string name="crash_title">App crashed</string>
     <string name="crash_description">An unexpected error occurred. Please share the crash report to help us fix the issue</string>
     <string name="crash_share_logs">Share logs</string>
