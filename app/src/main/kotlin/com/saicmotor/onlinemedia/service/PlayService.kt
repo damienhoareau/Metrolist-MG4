@@ -15,6 +15,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.IInterface
 import android.os.Looper
+import android.os.SystemClock
 import android.os.Parcel
 import android.os.RemoteCallbackList
 import android.os.RemoteException
@@ -99,10 +100,19 @@ class PlayService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        Timber.tag(TAG).i("service created, uptime %d s", SystemClock.elapsedRealtime() / 1000)
         bindService(Intent(this, MusicService::class.java), musicServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
-    override fun onBind(intent: Intent?): IBinder = binder
+    override fun onBind(intent: Intent?): IBinder {
+        Timber.tag(TAG).i("car media service bound, uptime %d s, player attached=%b", SystemClock.elapsedRealtime() / 1000, player != null)
+        return binder
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        Timber.tag(TAG).i("car media service unbound")
+        return super.onUnbind(intent)
+    }
 
     override fun onDestroy() {
         detach()
@@ -140,6 +150,20 @@ class PlayService : Service() {
         }
         // The car builds a fresh track record without a play state on each change and only fills it on the next start event.
         if (playing) broadcast(EVENT_START) {}
+    }
+
+    // A listener that subscribes after the last change (the cluster, typically) would otherwise stay blank until the next track.
+    private fun replayStateTo(listener: PlayEventListener) {
+        val track = currentTrack ?: return
+        try {
+            listener.send(EVENT_TRACK_CHANGED) {
+                writeInt(1)
+                writeOnLineMusic(track)
+            }
+            listener.send(if (playing) EVENT_START else EVENT_PAUSE) {}
+        } catch (e: RemoteException) {
+            Timber.tag(TAG).w(e, "could not replay the track to a new listener")
+        }
     }
 
     // A stalled network or a track load stops isPlaying, but the car must keep showing "playing" until the user pauses.
@@ -203,7 +227,9 @@ class PlayService : Service() {
             }
             if (code !in CALL_PLAY..CALL_UNUSED_B) return super.onTransact(code, data, reply, flags)
             data.enforceInterface(SERVICE_DESCRIPTOR)
-            if (code <= CALL_NEXT) Timber.tag(TAG).i("car call %d, player attached=%b", code, player != null)
+            if (code <= CALL_NEXT || code == CALL_ADD_LISTENER || code == CALL_REMOVE_LISTENER) {
+                Timber.tag(TAG).i("car call %d, player attached=%b, track=%b", code, player != null, currentTrack != null)
+            }
             when (code) {
                 CALL_PLAY ->
                     onPlayer {
@@ -218,7 +244,11 @@ class PlayService : Service() {
                 }
                 CALL_PREVIOUS -> onPlayer { seekToPrevious() }
                 CALL_NEXT -> onPlayer { seekToNext() }
-                CALL_ADD_LISTENER -> callbacks.register(PlayEventListener(data.readStrongBinder()))
+                CALL_ADD_LISTENER -> {
+                    val listener = PlayEventListener(data.readStrongBinder())
+                    callbacks.register(listener)
+                    mainHandler.post { replayStateTo(listener) }
+                }
                 CALL_REMOVE_LISTENER -> callbacks.unregister(PlayEventListener(data.readStrongBinder()))
             }
             reply?.writeNoException()
