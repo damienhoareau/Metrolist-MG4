@@ -165,6 +165,7 @@
         <activity
             android:name="com.saicmotor.onlinemedia.MediaAppActivity"
             android:exported="true"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|keyboard|keyboardHidden|navigation|fontScale|layoutDirection|locale"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:theme="@style/Theme.Metrolist"
