@@ -1313,7 +1313,7 @@ open class MainActivity : FragmentActivity() {
                     ) {
                         Row(Modifier.fillMaxSize()) {
                             val onRailItemClick: (Screens, Boolean) -> Unit =
-                                remember(navController, coroutineScope, topAppBarScrollBehavior, playerBottomSheetState) {
+                                remember(navController, coroutineScope, topAppBarScrollBehavior, playerBottomSheetState, navigationItems) {
                                     { screen: Screens, isSelected: Boolean ->
                                         if (playerBottomSheetState.isExpanded) {
                                             playerBottomSheetState.collapseSoft()
@@ -1325,12 +1325,20 @@ open class MainActivity : FragmentActivity() {
                                                 topAppBarScrollBehavior.state.resetHeightOffset()
                                             }
                                         } else {
-                                            navController.navigate(screen.route) {
-                                                popUpTo(navController.graph.startDestinationId) {
-                                                    saveState = true
+                                            // Leaving a screen opened over the tabs (settings, an album...): close it
+                                            // for good, otherwise its saved state is restored on top of the tab.
+                                            val currentTabRoute = navController.currentDestination?.route
+                                            if (navigationItems.none { it.route == currentTabRoute }) {
+                                                navController.popBackStack(navController.graph.startDestinationId, false)
+                                            }
+                                            if (navController.currentDestination?.route != screen.route) {
+                                                navController.navigate(screen.route) {
+                                                    popUpTo(navController.graph.startDestinationId) {
+                                                        saveState = true
+                                                    }
+                                                    launchSingleTop = true
+                                                    restoreState = true
                                                 }
-                                                launchSingleTop = true
-                                                restoreState = true
                                             }
                                         }
                                     }

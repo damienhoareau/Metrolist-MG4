@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.platform.LocalDensity
@@ -64,6 +65,7 @@ fun BottomSheet(
     onDismiss: (() -> Unit)? = null,
     collapsedContent: @Composable BoxScope.() -> Unit,
     isExpandable: Boolean = true,
+    collapsedWidth: Dp? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val density = LocalDensity.current
@@ -80,6 +82,20 @@ fun BottomSheet(
     Box(
         modifier = modifier
             .fillMaxSize()
+            // While collapsed, the sheet only spans its visible content, so that it does not take
+            // the touches aimed at what shows on either side of it.
+            .layout { measurable, constraints ->
+                val width =
+                    if (collapsedWidth != null && state.isCollapsed) {
+                        collapsedWidth.roundToPx().coerceAtMost(constraints.maxWidth)
+                    } else {
+                        constraints.maxWidth
+                    }
+                val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
+                layout(constraints.maxWidth, placeable.height) {
+                    placeable.place((constraints.maxWidth - width) / 2, 0)
+                }
+            }
             // Use graphicsLayer for offset to ensure hardware acceleration and 120Hz support
             .graphicsLayer {
                 val y = (state.expandedBound - state.value)

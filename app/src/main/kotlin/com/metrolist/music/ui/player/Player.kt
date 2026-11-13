@@ -848,9 +848,22 @@ fun BottomSheetPlayer(
 
     val backgroundAlpha = state.progress.coerceIn(0f, 1f)
 
+    // Matches the mini player: on wide landscape screens it is a centred 580 dp pill with 12 dp of
+    // padding on each side, inside the horizontal system bar insets.
+    val collapsedSheetWidth =
+        if (isLandscapePlayer && LocalConfiguration.current.screenWidthDp >= 600) {
+            val density = LocalDensity.current
+            val layoutDirection = androidx.compose.ui.platform.LocalLayoutDirection.current
+            val bars = WindowInsets.systemBars
+            604.dp + with(density) { (bars.getLeft(this, layoutDirection) + bars.getRight(this, layoutDirection)).toDp() }
+        } else {
+            null
+        }
+
     BottomSheet(
         state = state,
         modifier = modifier,
+        collapsedWidth = collapsedSheetWidth,
         background = {
             Box(
                 modifier =

@@ -134,10 +134,11 @@ fun AppNavigationRail(
             )
         }
 
-        // Kept right under the items: pinned to the bottom it sits under the mini player, which swallows its taps.
-        if (bottomContent != null) {
-            Spacer(modifier = Modifier.height(RailTopMargin))
-            bottomContent(this)
+        Spacer(modifier = Modifier.weight(1f))
+
+        bottomContent?.let {
+            it(this)
+            Spacer(modifier = Modifier.height(RailBottomMargin))
         }
     }
 }
