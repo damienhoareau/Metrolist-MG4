@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -36,6 +37,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,6 +71,7 @@ import com.metrolist.music.constants.EnableNetEaseKey
 import com.metrolist.music.constants.EnableLrcLibKey
 import com.metrolist.music.constants.EnablePaxsenixKey
 import com.metrolist.music.constants.EnableLyricsPlus
+import com.metrolist.music.constants.EnableSpotifyLyricsKey
 import com.metrolist.music.constants.EnableZemerKey
 import com.metrolist.music.constants.HideExplicitKey
 import com.metrolist.music.constants.HideVideoSongsKey
@@ -96,6 +100,8 @@ import com.metrolist.music.ui.component.Material3SettingsItem
 import com.metrolist.music.ui.component.DraggableLyricsProviderItem
 import com.metrolist.music.ui.component.DraggableLyricsProviderList
 import com.metrolist.music.lyrics.LyricsProviderRegistry
+import com.metrolist.music.lyrics.SpotifyLyricsApi
+import com.metrolist.music.lyrics.SpotifySessionCookieStore
 import com.metrolist.music.ui.utils.backToMain
 import com.metrolist.music.utils.rememberEnumPreference
 import com.metrolist.music.utils.rememberPreference
@@ -131,6 +137,9 @@ fun ContentSettings(
     val (enableBetterLyrics, onEnableBetterLyricsChange) = rememberPreference(key = EnableBetterLyricsKey, defaultValue = true)
     val (enablePaxsenix, onEnablePaxsenixChange) = rememberPreference(key = EnablePaxsenixKey, defaultValue = true)
     val (enableLyricsPlus, onEnableLyricsPlusChange) = rememberPreference(key = EnableLyricsPlus, defaultValue = true)
+    val (enableSpotifyLyrics, onEnableSpotifyLyricsChange) = rememberPreference(key = EnableSpotifyLyricsKey, defaultValue = false)
+    var spotifyCookieConfigured by rememberSaveable { mutableStateOf(SpotifySessionCookieStore.isConfigured(context)) }
+    var showSpotifyCookieDialog by rememberSaveable { mutableStateOf(false) }
     val (lyricsProviderOrder, onLyricsProviderOrderChange) = rememberPreference(
         key = LyricsProviderOrderKey,
         defaultValue = LyricsProviderRegistry.serializeProviderOrder(LyricsProviderRegistry.getDefaultProviderOrder())
@@ -177,7 +186,7 @@ fun ContentSettings(
             "LrcLib" to "LrcLib",
             "KuGou" to "KuGou",
             "NetEase" to "NetEase",
-            "Musixmatch" to "Musixmatch",
+            "Spotify" to "Spotify",
             "LyricsPlus" to "LyricsPlus",
             "Zemer" to "Zemer",
             "YouTubeSubtitle" to "YouTube Subtitles",
@@ -585,6 +594,34 @@ fun ContentSettings(
                             }
                         )
                     }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(stringResource(R.string.enable_spotify_lyrics))
+                            Text(
+                                text = stringResource(R.string.enable_spotify_lyrics_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = enableSpotifyLyrics && spotifyCookieConfigured,
+                            enabled = spotifyCookieConfigured,
+                            onCheckedChange = onEnableSpotifyLyricsChange,
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (enableSpotifyLyrics && spotifyCookieConfigured) R.drawable.check else R.drawable.close,
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                                )
+                            },
+                        )
+                    }
                     Column(modifier = Modifier.padding(2.dp)) {
                         Text(
                             text = stringResource(R.string.youtube_music_lyrics_note),
@@ -601,6 +638,81 @@ fun ContentSettings(
                     Text(stringResource(R.string.close))
                 }
             }
+        )
+    }
+
+    if (showSpotifyCookieDialog) {
+        var spotifyCookieInput by rememberSaveable { mutableStateOf("") }
+        var spotifyCookieSaveFailed by rememberSaveable { mutableStateOf(false) }
+        AlertDialog(
+            onDismissRequest = { showSpotifyCookieDialog = false },
+            title = { Text(stringResource(R.string.spotify_session_cookie_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.spotify_session_cookie_desc))
+                    if (spotifyCookieConfigured) {
+                        Text(
+                            stringResource(R.string.spotify_session_cookie_saved),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    OutlinedTextField(
+                        value = spotifyCookieInput,
+                        onValueChange = {
+                            spotifyCookieInput = it
+                            spotifyCookieSaveFailed = false
+                        },
+                        label = { Text(stringResource(R.string.spotify_session_cookie_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    )
+                    if (spotifyCookieSaveFailed) {
+                        Text(
+                            stringResource(R.string.spotify_session_cookie_save_failed),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                    if (spotifyCookieConfigured) {
+                        TextButton(
+                            onClick = {
+                                SpotifySessionCookieStore.clear(context)
+                                SpotifyLyricsApi.clearSession()
+                                spotifyCookieConfigured = false
+                                onEnableSpotifyLyricsChange(false)
+                                showSpotifyCookieDialog = false
+                            },
+                        ) {
+                            Text(stringResource(R.string.clear))
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = spotifyCookieInput.isNotBlank(),
+                    onClick = {
+                        runCatching { SpotifySessionCookieStore.store(context, spotifyCookieInput) }
+                            .onSuccess {
+                                SpotifyLyricsApi.clearSession()
+                                spotifyCookieConfigured = true
+                                spotifyCookieInput = ""
+                                showSpotifyCookieDialog = false
+                            }
+                            .onFailure { spotifyCookieSaveFailed = true }
+                    },
+                ) {
+                    Text(stringResource(R.string.save))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSpotifyCookieDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
         )
     }
 
@@ -708,7 +820,7 @@ fun ContentSettings(
             "LrcLib".takeIf { enableLrclib },
             "KuGou".takeIf { enableKugou },
             "NetEase".takeIf { enableNetEase },
-            "Musixmatch",
+            "Spotify".takeIf { enableSpotifyLyrics && spotifyCookieConfigured },
             "BetterLyrics".takeIf { enableBetterLyrics },
             "Paxsenix".takeIf { enablePaxsenix },
             "LyricsPlus".takeIf { enableLyricsPlus },
@@ -717,7 +829,7 @@ fun ContentSettings(
         val lyricsIcon = painterResource(R.drawable.lyrics)
         val draggableItems = remember { mutableStateListOf<DraggableLyricsProviderItem>() }
 
-        LaunchedEffect(normalizedOrder, enableLrclib, enableKugou, enableNetEase, enableBetterLyrics, enablePaxsenix, enableLyricsPlus, enableZemer) {
+        LaunchedEffect(normalizedOrder, enableLrclib, enableKugou, enableNetEase, enableBetterLyrics, enablePaxsenix, enableLyricsPlus, enableZemer, enableSpotifyLyrics, spotifyCookieConfigured) {
             val orderedEnabledProviders = normalizedOrder.filter { it in enabledProviders }
             draggableItems.clear()
             draggableItems.addAll(
@@ -1041,6 +1153,19 @@ fun ContentSettings(
                     title = { Text(stringResource(R.string.lyrics_provider_priority)) },
                     description = { Text(stringResource(R.string.lyrics_provider_priority_desc)) },
                     onClick = { showProviderPriorityDialog = true }
+                ),
+                Material3SettingsItem(
+                    icon = painterResource(R.drawable.lyrics),
+                    title = { Text(stringResource(R.string.spotify_session_cookie_title)) },
+                    description = {
+                        Text(
+                            stringResource(
+                                if (spotifyCookieConfigured) R.string.spotify_session_cookie_saved
+                                else R.string.spotify_session_cookie_required,
+                            ),
+                        )
+                    },
+                    onClick = { showSpotifyCookieDialog = true },
                 ),
                 Material3SettingsItem(
                     icon = painterResource(R.drawable.language_korean_latin),

@@ -143,6 +143,14 @@
     <string name="enable_paxsenix_desc">High-quality synchronized lyrics from Paxsenix API</string>
     <string name="enable_lyricsplus">Enable LyricsPlus</string>
     <string name="enable_lyricsplus_desc">Synchronized lyrics from multiple sources</string>
+    <string name="enable_spotify_lyrics">Enable Spotify</string>
+    <string name="enable_spotify_lyrics_desc">Line-synced lyrics from Spotify. Configure a session cookie first.</string>
+    <string name="spotify_session_cookie_title">Spotify session</string>
+    <string name="spotify_session_cookie_desc">Paste your Spotify sp_dc session cookie. It is encrypted on this device and sent only to Spotify for authentication.</string>
+    <string name="spotify_session_cookie_label">sp_dc cookie</string>
+    <string name="spotify_session_cookie_saved">Session cookie stored securely</string>
+    <string name="spotify_session_cookie_required">Configure a Spotify session cookie to use this provider</string>
+    <string name="spotify_session_cookie_save_failed">Could not securely save the cookie</string>
     <string name="lyrics_provider_selection">Provider selection</string>
     <string name="lyrics_provider_selection_desc">Choose which lyrics providers are enabled</string>
     <string name="auto_scroll">Re-sync</string>

@@ -101,6 +101,7 @@ core.*
 *.so
 *.bin
 .env
+/spotify_cookie.txt
 app/src/main/java/com/metrolist/music/listentogether/proto/*
 
 # FFTW third-party library build artifacts
