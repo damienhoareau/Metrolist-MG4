@@ -105,6 +105,11 @@ object CarWheelKeys {
                 return@launch
             }
             if (!owner.isPlayerReady.value) return@launch
+            // Another source is playing (Android Auto, for instance): the keys are meant for it.
+            if (!owner.isCurrentAudioSource) {
+                Timber.tag(TAG).i("key %d ignored, another app holds the audio focus", keyCode)
+                return@launch
+            }
             val player = owner.player
             when (keyCode) {
                 WHEEL_LEFT -> player.seekToPrevious()

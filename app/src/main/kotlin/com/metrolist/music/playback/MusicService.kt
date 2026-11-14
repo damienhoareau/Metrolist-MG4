@@ -309,6 +309,10 @@ class MusicService :
     private var networkProbe: NetworkProbe? = null
     var hasAudioFocus = false
         private set
+
+    /** False once another app (Android Auto, a call...) has taken the audio focus and this one has not taken it back. */
+    val isCurrentAudioSource: Boolean
+        get() = hasAudioFocus || lastAudioFocusState == AudioManager.AUDIOFOCUS_NONE
     private var reentrantFocusGain = false
     private var wasPlayingBeforeVolumeMute = false
     private var isPausedByVolumeMute = false
