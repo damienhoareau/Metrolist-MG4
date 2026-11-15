@@ -102,6 +102,7 @@ import com.metrolist.music.ui.component.DraggableLyricsProviderList
 import com.metrolist.music.lyrics.LyricsProviderRegistry
 import com.metrolist.music.lyrics.SpotifyLyricsApi
 import com.metrolist.music.lyrics.SpotifySessionCookieStore
+import kotlinx.coroutines.launch
 import com.metrolist.music.ui.utils.backToMain
 import com.metrolist.music.utils.rememberEnumPreference
 import com.metrolist.music.utils.rememberPreference
@@ -644,6 +645,23 @@ fun ContentSettings(
     if (showSpotifyCookieDialog) {
         var spotifyCookieInput by rememberSaveable { mutableStateOf("") }
         var spotifyCookieSaveFailed by rememberSaveable { mutableStateOf(false) }
+        var spotifyCookieUsbNotFound by rememberSaveable { mutableStateOf(false) }
+        val usbImportScope = androidx.compose.runtime.rememberCoroutineScope()
+        // The import runs whatever the answer: platform-signed builds read the key without this permission.
+        val usbImportLauncher =
+            androidx.activity.compose.rememberLauncherForActivityResult(
+                androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
+            ) {
+                usbImportScope.launch {
+                    val imported =
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            com.metrolist.music.lyrics.SpotifyCookieUsbImport.read()
+                        }
+                    if (imported != null) spotifyCookieInput = imported
+                    spotifyCookieUsbNotFound = imported == null
+                    spotifyCookieSaveFailed = false
+                }
+            }
         AlertDialog(
             onDismissRequest = { showSpotifyCookieDialog = false },
             title = { Text(stringResource(R.string.spotify_session_cookie_title)) },
@@ -672,6 +690,21 @@ fun ContentSettings(
                     if (spotifyCookieSaveFailed) {
                         Text(
                             stringResource(R.string.spotify_session_cookie_save_failed),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                    TextButton(
+                        onClick = { usbImportLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE) },
+                    ) {
+                        Text(stringResource(R.string.spotify_session_cookie_import_usb))
+                    }
+                    if (spotifyCookieUsbNotFound) {
+                        Text(
+                            stringResource(
+                                R.string.spotify_session_cookie_import_not_found,
+                                com.metrolist.music.lyrics.SpotifyCookieUsbImport.FILE_NAME,
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
                         )
