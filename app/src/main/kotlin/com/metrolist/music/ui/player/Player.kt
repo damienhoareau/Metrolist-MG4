@@ -2591,6 +2591,13 @@ fun InlineLyricsView(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center,
+                    modifier =
+                        Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            // Dropping the stored "not found" row makes the effect above search again.
+                            .clickable(role = Role.Button) {
+                                currentLyrics?.let { database.query { delete(it) } }
+                            }.padding(32.dp),
                 )
             }
 
