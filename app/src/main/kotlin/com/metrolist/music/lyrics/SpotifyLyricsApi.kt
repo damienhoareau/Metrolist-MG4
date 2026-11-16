@@ -37,6 +37,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
+import timber.log.Timber
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.util.Locale
@@ -285,7 +286,19 @@ object SpotifyLyricsApi {
         return items.firstNotNullOfOrNull { item ->
             val track = item.jsonObject["item"]?.jsonObject?.get("data")?.jsonObject ?: return@firstNotNullOfOrNull null
             if (track["__typename"]?.jsonPrimitive?.contentOrNull != "Track") return@firstNotNullOfOrNull null
-            track["id"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
+            track["id"]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }?.also { id ->
+                val artists =
+                    (track["artists"]?.jsonObject?.get("items") as? JsonArray).orEmpty().mapNotNull {
+                        it.jsonObject["profile"]?.jsonObject?.get("name")?.jsonPrimitive?.contentOrNull
+                    }
+                Timber.tag("SpotifyLyrics").i(
+                    "search \"%s\" matched track %s: \"%s\" by %s",
+                    query,
+                    id,
+                    track["name"]?.jsonPrimitive?.contentOrNull,
+                    artists.joinToString(),
+                )
+            }
         } ?: throw IllegalStateException("Spotify found no matching track")
     }
 
