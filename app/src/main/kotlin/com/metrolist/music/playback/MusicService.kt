@@ -310,9 +310,13 @@ class MusicService :
     var hasAudioFocus = false
         private set
 
-    /** False once another app (Android Auto, a call...) has taken the audio focus and this one has not taken it back. */
+    /**
+     * False once another app (Android Auto, a call...) has taken the audio focus and this one has not taken it
+     * back. Before this app has ever held the focus, another app already playing music counts as the source.
+     */
     val isCurrentAudioSource: Boolean
-        get() = hasAudioFocus || lastAudioFocusState == AudioManager.AUDIOFOCUS_NONE
+        get() = hasAudioFocus ||
+            (lastAudioFocusState == AudioManager.AUDIOFOCUS_NONE && !audioManager.isMusicActive)
     private var reentrantFocusGain = false
     private var wasPlayingBeforeVolumeMute = false
     private var isPausedByVolumeMute = false
