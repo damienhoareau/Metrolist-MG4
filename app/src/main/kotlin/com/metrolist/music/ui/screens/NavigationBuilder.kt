@@ -412,6 +412,10 @@ fun NavGraphBuilder.navigationBuilder(
         LoginScreen(navController)
     }
 
+    composable("spotify_login") {
+        SpotifyLoginScreen(navController)
+    }
+
     composable("switch_channel") {
         LoginScreen(
             navController = navController,

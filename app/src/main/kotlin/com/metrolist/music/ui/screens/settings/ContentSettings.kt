@@ -141,6 +141,13 @@ fun ContentSettings(
     val (enableSpotifyLyrics, onEnableSpotifyLyricsChange) = rememberPreference(key = EnableSpotifyLyricsKey, defaultValue = false)
     var spotifyCookieConfigured by rememberSaveable { mutableStateOf(SpotifySessionCookieStore.isConfigured(context)) }
     var showSpotifyCookieDialog by rememberSaveable { mutableStateOf(false) }
+    // Back from the Spotify sign-in screen: a new link turns the provider on.
+    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+        val configured = SpotifySessionCookieStore.isConfigured(context)
+        if (configured && !spotifyCookieConfigured) onEnableSpotifyLyricsChange(true)
+        spotifyCookieConfigured = configured
+        onPauseOrDispose {}
+    }
     val (lyricsProviderOrder, onLyricsProviderOrderChange) = rememberPreference(
         key = LyricsProviderOrderKey,
         defaultValue = LyricsProviderRegistry.serializeProviderOrder(LyricsProviderRegistry.getDefaultProviderOrder())
@@ -666,7 +673,19 @@ fun ContentSettings(
             onDismissRequest = { showSpotifyCookieDialog = false },
             title = { Text(stringResource(R.string.spotify_session_cookie_title)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    modifier = Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    androidx.compose.material3.Button(
+                        onClick = {
+                            showSpotifyCookieDialog = false
+                            navController.navigate("spotify_login")
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.spotify_login))
+                    }
                     Text(stringResource(R.string.spotify_session_cookie_desc))
                     if (spotifyCookieConfigured) {
                         Text(
@@ -1193,7 +1212,7 @@ fun ContentSettings(
                     description = {
                         Text(
                             stringResource(
-                                if (spotifyCookieConfigured) R.string.spotify_session_cookie_saved
+                                if (spotifyCookieConfigured) R.string.spotify_account_linked
                                 else R.string.spotify_session_cookie_required,
                             ),
                         )
