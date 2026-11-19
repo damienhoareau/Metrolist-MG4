@@ -61,15 +61,24 @@ object CarMediaSource {
         Timber.tag(TAG).i("claim online music: setLastSource=%s; before: %s; after: %s", if (set.isSuccess) "ok" else set.exceptionOrNull(), before, describe(audioManager))
     }
 
+    /**
+     * Whether the car's current source is online music, i.e. this app. Null when the head unit does not
+     * report a source. Holds while the source app is paused, unlike [AudioManager.isMusicActive].
+     */
+    fun isCurrentSource(context: Context): Boolean? =
+        currentSource(context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).getOrNull()
+            ?.let { it == SOURCE_ONLINE_MUSIC }
+
+    private fun currentSource(audioManager: AudioManager): Result<Int?> =
+        runCatching {
+            val attributes = audioManager.javaClass.getMethod("getCurrentSource").invoke(audioManager)
+            (attributes?.javaClass?.getMethod("getBundle")?.invoke(attributes) as? Bundle)
+                ?.takeIf { it.containsKey(KEY_CAR_SOURCE_TYPE) }
+                ?.getInt(KEY_CAR_SOURCE_TYPE)
+        }
+
     private fun describe(audioManager: AudioManager): String {
         val last = runCatching { audioManager.javaClass.getMethod("getLastSource").invoke(audioManager) }
-        val current =
-            runCatching {
-                val attributes = audioManager.javaClass.getMethod("getCurrentSource").invoke(audioManager)
-                (attributes?.javaClass?.getMethod("getBundle")?.invoke(attributes) as? Bundle)
-                    ?.takeIf { it.containsKey(KEY_CAR_SOURCE_TYPE) }
-                    ?.getInt(KEY_CAR_SOURCE_TYPE)
-            }
-        return "lastSource=${last.getOrNull() ?: "n/a"} currentSource=${current.getOrNull() ?: "n/a"}"
+        return "lastSource=${last.getOrNull() ?: "n/a"} currentSource=${currentSource(audioManager).getOrNull() ?: "n/a"}"
     }
 }

@@ -311,12 +311,14 @@ class MusicService :
         private set
 
     /**
-     * False once another app (Android Auto, a call...) has taken the audio focus and this one has not taken it
-     * back. Before this app has ever held the focus, another app already playing music counts as the source.
+     * False while another source (Android Auto, the radio...) is selected, even paused. Without a source
+     * reported by the head unit: false once another app has taken the audio focus and this one has not
+     * taken it back, or, before this app has ever held the focus, while another app plays music.
      */
     val isCurrentAudioSource: Boolean
         get() = hasAudioFocus ||
-            (lastAudioFocusState == AudioManager.AUDIOFOCUS_NONE && !audioManager.isMusicActive)
+            CarMediaSource.isCurrentSource(this)
+            ?: (lastAudioFocusState == AudioManager.AUDIOFOCUS_NONE && !audioManager.isMusicActive)
     private var reentrantFocusGain = false
     private var wasPlayingBeforeVolumeMute = false
     private var isPausedByVolumeMute = false
